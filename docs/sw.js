@@ -1,4 +1,4 @@
-const CACHE = "shelter-v1";
+const CACHE = "shelter-v2-16px";
 const ASSETS = [
   "./",
   "./index.html",

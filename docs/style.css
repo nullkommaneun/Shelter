@@ -1,21 +1,19 @@
-:root { --tile: 18px; }
 * { box-sizing: border-box; }
+:root { --bg: #0e1a27; --fg: #e6f2ff; }
 body {
-  margin: 0; background:#0e1a27; color:#e6f2ff;
+  margin: 0; background: var(--bg); color: var(--fg);
   font: 14px/1.4 system-ui, sans-serif;
-  display:grid; place-items:center; gap:10px; padding:14px;
+  display: grid; place-items: center; gap: 10px; padding: 14px;
 }
-#hud { width: 100%; max-width: 560px; display:flex; flex-direction:column; gap:8px; }
-#toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+#hud { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 8px; }
+#toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
 #toolbar button {
   background:#17324a; color:#cfe6ff; border:1px solid #335a7e;
   padding:6px 10px; border-radius:8px;
 }
-#msg { opacity:.9; }
+#msg { opacity: .9; }
 canvas {
+  /* Größe wird per JS pixel-perfect gesetzt */
   image-rendering: pixelated;
-  width: min(96vw, 560px);                 /* passt sich dem Handy an */
-  aspect-ratio: calc(18 / 12);             /* hält 18x12-Raster */
-  height: auto;
-  border:2px solid #2a4a68; border-radius:10px; background:#0b1520;
+  border: 2px solid #2a4a68; border-radius: 10px; background: #0b1520;
 }
