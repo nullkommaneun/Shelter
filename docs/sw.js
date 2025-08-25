@@ -1,5 +1,5 @@
-// Cache-Version bumpen, damit neue Assets sicher geladen werden
-const CACHE = "shelter-v3-build";
+// Cache-Version bumpen, damit das Dropdown sicher ausgerollt wird
+const CACHE = "shelter-v4-dropdown";
 const ASSETS = [
   "./",
   "./index.html",

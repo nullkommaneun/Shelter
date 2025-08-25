@@ -8,23 +8,28 @@ body {
 #hud { width: 100%; max-width: 640px; display: grid; gap: 8px; }
 #resources { display: flex; gap: 8px; flex-wrap: wrap; }
 #resources span { background:#10263a; border:1px solid var(--line); padding:4px 6px; border-radius:8px; }
+
 #toolbar { display: grid; gap: 8px; }
-#bar { display: flex; flex-wrap: wrap; gap: 8px; }
-#bar button,
-#actions button {
+#buildwrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+select, button {
   background:#17324a; color:#cfe6ff; border:1px solid #335a7e;
-  padding:6px 10px; border-radius:8px; cursor:pointer;
+  padding:6px 10px; border-radius:8px;
 }
-#bar button.active { outline:2px solid #8fd1ff; }
+select {
+  min-width: 230px;
+  appearance: none; -webkit-appearance: none; /* Mobile sauberer */
+}
 #actions { display:flex; gap:8px; flex-wrap:wrap; }
 #msg { opacity:.9 }
+
 #log {
   width: 100%; max-width: 640px; min-height: 70px; max-height: 120px;
   overflow:auto; background: var(--panel); border:1px solid var(--line);
   padding:6px; border-radius:8px; font-size:13px;
 }
+
 canvas {
-  /* Pixel-perfect Größe wird per JS gesetzt */
   image-rendering: pixelated;
   border:2px solid var(--line); border-radius:10px; background:#0b1520;
 }
