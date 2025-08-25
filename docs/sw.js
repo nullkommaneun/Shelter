@@ -1,18 +1,21 @@
-// docs/sw.js
-const CACHE = "shelter-v5-preflight";
+const CACHE = "shelter-v6-core";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./main.js",
   "./preflight.js",
+  "./main.js",
+  "./config.js",
+  "./engine.js",
+  "./systems.js",
+  "./state.js",
+  "./rng.js",
   "./manifest.webmanifest"
 ];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
-
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
@@ -20,7 +23,6 @@ self.addEventListener("activate", (e) => {
     )
   );
 });
-
 self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });

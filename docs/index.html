@@ -7,8 +7,7 @@
   <meta name="theme-color" content="#0e1a27">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./style.css">
-
-  <!-- Preflight/Debug: lädt als ERSTES -->
+  <!-- Preflight zuerst -->
   <script type="module" src="./preflight.js"></script>
 </head>
 <body>
@@ -33,6 +32,8 @@
         <button id="modeBtn" data-mode="build">Modus: Bauen</button>
         <button id="saveBtn">Speichern</button>
         <button id="loadBtn">Laden</button>
+        <button id="exportBtn">Export</button>
+        <button id="importBtn">Import</button>
         <button id="resetBtn">Neues Spiel</button>
       </div>
     </div>
@@ -44,7 +45,7 @@
 
   <div id="log" aria-live="polite"></div>
 
-  <!-- Game-Code lädt nach Preflight -->
+  <!-- Spiel-Bootstrap -->
   <script type="module" src="./main.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
