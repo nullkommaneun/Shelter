@@ -4,14 +4,26 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Shelter Builder</title>
+
+  <!-- PWA/Theme -->
   <meta name="theme-color" content="#0e1a27">
   <link rel="manifest" href="./manifest.webmanifest">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="./style.css">
-  <!-- Preflight zuerst -->
+
+  <!-- Preflight/Debug: als ERSTES laden -->
   <script type="module" src="./preflight.js"></script>
 </head>
 <body>
+  <noscript>
+    <div style="padding:12px;background:#301010;color:#fff;font:14px system-ui">
+      JavaScript ist deaktiviert – das Spiel benötigt JS.
+    </div>
+  </noscript>
+
   <div id="hud">
+    <!-- Ressourcenanzeige -->
     <div id="resources">
       <span id="rWood">Holz: 0</span>
       <span id="rMetal">Metall: 0</span>
@@ -22,6 +34,7 @@
       <span id="rHP">Integrität: 100%</span>
     </div>
 
+    <!-- Toolbar: Gebäudeauswahl + Aktionen -->
     <div id="toolbar">
       <div id="buildwrap">
         <label for="buildSelect">Gebäude:</label>
@@ -38,18 +51,26 @@
       </div>
     </div>
 
-    <div id="msg">Tipp: Lange drücken auf ein Gebäude = Upgrade · „Modus: Abreißen“ entfernt mit 50 % Rückerstattung.</div>
+    <div id="msg">
+      Tipp: Lange drücken auf ein Gebäude = Upgrade · „Modus: Abreißen“ entfernt mit 50&nbsp;% Rückerstattung.
+    </div>
   </div>
 
+  <!-- Spielfeld -->
   <canvas id="c" width="288" height="192"></canvas>
 
+  <!-- Event-/System-Log -->
   <div id="log" aria-live="polite"></div>
 
-  <!-- Spiel-Bootstrap -->
-  <script type="module" src="./main.js"></script>
+  <!-- Boot-Checker lädt main.js erst nach File-Checks -->
+  <script type="module" src="./bootcheck.js"></script>
+
+  <!-- Service Worker Registrierung -->
   <script>
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js");
+      });
     }
   </script>
 </body>
