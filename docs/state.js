@@ -20,16 +20,22 @@ export function newGame(){
     log: ["Willkommen! Baue Produktion auf, dann Verteidigung. Lange drücken = Upgrade."],
     seed: randomSeed(),
     ver: SAVE_VERSION,
-    // Scheduler-Felder
+    // Scheduler
     nextAttackAt: null,
     revealAt: null,
-    graceUntil: (GRACE_S|0) // ab t >= graceUntil kann geplant/angegriffen werden
+    graceUntil: (GRACE_S|0),
+    // TD
+    enemies: [],          // {x: float, r: int, hp: int}
+    spawnQueue: 0,
+    lastSpawnAt: null
   };
 }
 
 export function toSave(state){
-  const {grid,res,t,threat,hp,selected,mode,seed,ver,nextAttackAt,revealAt,graceUntil}=state;
-  return {grid,res,t,threat,hp,selected,mode,seed,ver,nextAttackAt,revealAt,graceUntil};
+  const {grid,res,t,threat,hp,selected,mode,seed,ver,
+         nextAttackAt,revealAt,graceUntil,enemies,spawnQueue,lastSpawnAt} = state;
+  return {grid,res,t,threat,hp,selected,mode,seed,ver,
+          nextAttackAt,revealAt,graceUntil,enemies,spawnQueue,lastSpawnAt};
 }
 export function fromSave(obj){
   const s = newGame();
@@ -42,12 +48,20 @@ export function fromSave(obj){
     if(obj.selected) s.selected=obj.selected;
     if(obj.mode) s.mode=obj.mode;
     if(obj.seed!=null) s.seed=obj.seed>>>0;
+
     if(obj.nextAttackAt!=null) s.nextAttackAt = obj.nextAttackAt|0;
-    if(obj.revealAt!=null) s.revealAt = obj.revealAt|0;
-    if(obj.graceUntil!=null) s.graceUntil = obj.graceUntil|0;
+    if(obj.revealAt!=null)     s.revealAt     = obj.revealAt|0;
+    if(obj.graceUntil!=null)   s.graceUntil   = obj.graceUntil|0;
+
+    if(Array.isArray(obj.enemies)) s.enemies = obj.enemies.map(e=>({
+      x: +e.x||0, r: (e.r|0), hp: (e.hp|0)
+    }));
+    if(typeof obj.spawnQueue==='number') s.spawnQueue = obj.spawnQueue|0;
+    if(typeof obj.lastSpawnAt==='number' || obj.lastSpawnAt===null) s.lastSpawnAt = obj.lastSpawnAt;
   }catch{}
   return s;
 }
+
 function sanitizeGrid(g, rows, cols){
   const clean = emptyGrid(rows, cols);
   for(let r=0;r<Math.min(rows,g.length);r++){

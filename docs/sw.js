@@ -1,5 +1,5 @@
-// Cache-Version bump: Fix für Settings-Import (stellt neue Dateien sicher zu)
-const CACHE = "shelter-v15-scheduler-fix";
+// Cache-Version bump: Tower-Defense Kernlogik
+const CACHE = "shelter-v16-tdcore";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,7 +24,6 @@ self.addEventListener("install", (e) => {
     self.skipWaiting();
   })());
 });
-
 self.addEventListener("activate", (e) => {
   e.waitUntil((async () => {
     const keys = await caches.keys();
@@ -32,7 +31,6 @@ self.addEventListener("activate", (e) => {
     await self.clients.claim();
   })());
 });
-
 self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });
