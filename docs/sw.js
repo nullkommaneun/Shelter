@@ -1,5 +1,5 @@
-// Cache-Version bump: Scheduler + HUD-Countdown (HTML/JS geändert)
-const CACHE = "shelter-v14-scheduler";
+// Cache-Version bump: Fix für Settings-Import (stellt neue Dateien sicher zu)
+const CACHE = "shelter-v15-scheduler-fix";
 const ASSETS = [
   "./",
   "./index.html",
