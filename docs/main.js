@@ -5,11 +5,10 @@ import { makeRNG } from "./rng.js";
 import { initDebug } from "./debug.js";
 import { getConfig, onConfigChange, openConfigOverlay } from "./settings.js";
 
-// ---------- Laufzeit-Config ----------
 let cfg = getConfig();
 
-// ---------- Canvas & Pixel-Perfect ----------
-const TILE = 16, COLS = 18, ROWS = 12; // Grid bleibt vorerst fix
+// Grid (bewusst fix für diese Phase)
+const TILE = 16, COLS = 18, ROWS = 12;
 const LOG_W = COLS*TILE, LOG_H = ROWS*TILE;
 const DPR = Math.min(window.devicePixelRatio||1, 3);
 const canvas = document.getElementById("c");
@@ -20,7 +19,6 @@ function resize(){
   canvas.height = LOG_H * DPR;
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.imageSmoothingEnabled = false;
-
   const vw = document.documentElement.clientWidth, vh = window.innerHeight;
   const maxW = Math.min(vw*0.96, 640), maxH = vh*0.70;
   const scale = Math.max(1, Math.floor(Math.min(maxW/LOG_W, maxH/LOG_H)));
@@ -29,11 +27,11 @@ function resize(){
 }
 resize(); addEventListener("resize", resize);
 
-// ---------- State & RNG ----------
+// State & RNG
 let state = newGame();
 let rng = makeRNG(state.seed);
 
-// ---------- UI ----------
+// HUD-Refs
 const rWood   = document.getElementById("rWood");
 const rMetal  = document.getElementById("rMetal");
 const rFood   = document.getElementById("rFood");
@@ -41,7 +39,9 @@ const rPower  = document.getElementById("rPower");
 const rDef    = document.getElementById("rDef");
 const rThreat = document.getElementById("rThreat");
 const rHP     = document.getElementById("rHP");
+const rNext   = document.getElementById("rNext");
 
+// UI-Refs
 const buildSelect = document.getElementById("buildSelect");
 const modeBtn   = document.getElementById("modeBtn");
 const saveBtn   = document.getElementById("saveBtn");
@@ -52,18 +52,14 @@ const errExportBtn = document.getElementById("errExportBtn");
 const cfgBtn    = document.getElementById("cfgBtn");
 const resetBtn  = document.getElementById("resetBtn");
 const logEl     = document.getElementById("log");
-const msgEl     = document.getElementById("msg");
 
 function log(msg){ state.log.push(msg); if(state.log.length>200) state.log.splice(0, state.log.length-200); renderLog(); }
 function renderLog(){ logEl.innerHTML = state.log.slice(-7).map(s=>"• "+s).join("<br>"); logEl.scrollTop = logEl.scrollHeight; }
-
-// Debug-Logger
 const debug = initDebug({ onLog: (m)=> log(`Fehler: ${m}`) });
 
-// ---------- Dropdown & Kosten ----------
+// Dropdown & Kosten
 function BUILD_DEF(){ return cfg.BUILD_DEF; }
 function BUILD_ORDER(){ return Array.isArray(cfg.BUILD_ORDER)&&cfg.BUILD_ORDER.length ? cfg.BUILD_ORDER : Object.keys(BUILD_DEF()); }
-
 function levelCost(type, lvl){
   const def = BUILD_DEF()[type]; if(!def) return {};
   const base = (def.cost||{}), f = Math.pow(def.up||1.7, Math.max(0,lvl-1)), out={};
@@ -72,7 +68,6 @@ function levelCost(type, lvl){
 }
 function fmtCost(c){ return Object.entries(c).map(([k,v])=>`${v} ${k}`).join(", "); }
 function optionLabel(name){ const c=levelCost(name,1); return `${name} (${fmtCost(c)||"0"})`; }
-
 function populateSelect(){
   buildSelect.innerHTML="";
   for(const name of BUILD_ORDER()){
@@ -85,7 +80,7 @@ function populateSelect(){
 }
 populateSelect();
 
-// Config-Änderungen anwenden
+// Config-Changes
 onConfigChange((newCfg)=>{
   const oldTick = cfg.TICK_MS;
   cfg = newCfg;
@@ -98,7 +93,7 @@ onConfigChange((newCfg)=>{
   }
 });
 
-// ---------- Buttons ----------
+// Buttons
 buildSelect.onchange = ()=> state.selected = buildSelect.value;
 modeBtn.onclick = ()=>{
   state.mode = state.mode==="build" ? "demolish" : "build";
@@ -106,7 +101,7 @@ modeBtn.onclick = ()=>{
 };
 cfgBtn.onclick = ()=> openConfigOverlay();
 
-// ---------- Pointer ----------
+// Pointer
 let hover=null, pressTimer=null, pressHandled=false;
 canvas.addEventListener("pointermove", (e)=>{ hover = toCell(e); });
 canvas.addEventListener("pointerleave", ()=> hover=null);
@@ -129,11 +124,10 @@ function toCell(e){
   return (c>=0&&c<COLS&&r>=0&&r<ROWS)?{c,r}:null;
 }
 
-// ---------- Build/Upgrade/Demolish ----------
+// Build/Upgrade/Demolish
 function canAfford(cost){ return Object.entries(cost).every(([k,v]) => (state.res[k]??0) >= v); }
 function pay(cost){ for(const [k,v] of Object.entries(cost)) state.res[k]=(state.res[k]??0)-v; }
 function refund(cost, ratio=0.5){ for(const [k,v] of Object.entries(cost)) state.res[k]=(state.res[k]??0)+Math.floor(v*ratio); }
-
 function doBuild({c,r}){
   const b=state.grid[r][c];
   if(b){ log(`Feld belegt (${b.type}). Langer Druck: Upgrade · Abreißen-Modus: Entfernen.`); return; }
@@ -154,7 +148,7 @@ function tryUpgrade({c,r}){
   pay(cost); b.level++; log(`${b.type} → Level ${b.level}.`);
 }
 
-// ---------- Save/Load/Export/Import ----------
+// Save/Load/Export/Import
 saveBtn.onclick = ()=>{ saveLocal(state) ? log("Spielstand gespeichert.") : log("Speichern fehlgeschlagen."); };
 loadBtn.onclick = ()=>{
   const s = loadLocal();
@@ -168,21 +162,13 @@ exportBtn.onclick = async ()=>{
   catch { prompt("Export-Text kopieren:", txt); }
 };
 importBtn.onclick = async ()=>{
-  const input = prompt("Import-Text einfügen (SV|…|BASE64):","");
-  if(!input) return;
+  const input = prompt("Import-Text einfügen (SV|…|BASE64):",""); if(!input) return;
   const s = importSaveString(input.trim());
   if(!s){ log("Import fehlgeschlagen."); return; }
   state = s; rng = makeRNG(state.seed); populateSelect(); renderLog(); log("Import ok.");
 };
 
-// ---------- Fehlerlog-Export ----------
-errExportBtn.onclick = async ()=>{
-  const txt = debug.exportText();
-  try { await navigator.clipboard.writeText(txt); log("Fehlerlog in Zwischenablage."); }
-  catch { prompt("Fehlerlog kopieren:", txt); }
-};
-
-// ---------- Render & Engine ----------
+// Render & Engine
 function render(){
   // Hintergrund & Raster
   ctx.fillStyle="#0b1520"; ctx.fillRect(0,0,canvas.width,canvas.height);
@@ -201,12 +187,10 @@ function render(){
     ctx.fillStyle="#081018"; ctx.font="bold 8px monospace"; ctx.fillText(b.type[0], x+TILE/2-3, y+TILE/2+3);
   }
 
-  // Hover
-  if(hover){ const x=hover.c*TILE, y=hover.r*TILE; ctx.strokeStyle="#8fd1ff"; ctx.strokeRect(x+0.5,y+0.5,TILE-1,TILE-1); }
-
-  // HUD (mit Power-Need-Anzeige & Warnung)
+  // HUD mit Power & Countdown
   const s = computeStats(state, cfg);
   const need = s.powerNeed|0, prod = s.powerProd|0, active = s.powerActive|0;
+
   rWood.textContent   = `Holz: ${state.res.wood}`;
   rMetal.textContent  = `Metall: ${state.res.metal}`;
   rFood.textContent   = `Nahrung: ${state.res.food}`;
@@ -215,6 +199,18 @@ function render(){
   rDef.textContent    = `Verteid.: ${s.defTotal}`;
   rThreat.textContent = `Bedrohung: ${Math.round(state.threat)}%`;
   rHP.textContent     = `Integrität: ${Math.max(0,Math.round(state.hp))}%`;
+
+  // Countdown-Chip: sichtbar im Reveal-Fenster
+  const showCountdown = (state.revealAt!=null) && (state.t >= state.revealAt) && (state.t < (state.nextAttackAt||0));
+  if (showCountdown) {
+    const rem = Math.max(0, (state.nextAttackAt|0) - state.t);
+    const mm = Math.floor(rem/60).toString().padStart(2,"0");
+    const ss = Math.floor(rem%60).toString().padStart(2,"0");
+    rNext.textContent = `Angriff: ${mm}:${ss}`;
+    rNext.hidden = false;
+  } else {
+    rNext.hidden = true;
+  }
 }
 
 function onTick(){ tickOnce(state, rng, log, cfg); if(state.hp<=0) engine.stop(); }

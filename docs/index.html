@@ -32,6 +32,8 @@
       <span id="rDef"   class="chip">Verteid.: 0</span>
       <span id="rThreat" class="chip">Bedrohung: 0%</span>
       <span id="rHP"     class="chip">Integrität: 100%</span>
+      <!-- NEU: Countdown-Chip (nur während Reveal sichtbar) -->
+      <span id="rNext"   class="chip" hidden>Angriff: --:--</span>
     </div>
 
     <!-- Primärsteuerung -->
@@ -45,7 +47,7 @@
       </div>
     </div>
 
-    <!-- Sekundäraktionen: kompakt in Gruppen -->
+    <!-- Sekundäraktionen -->
     <div class="row wrap">
       <details class="group">
         <summary>Speichern &amp; Laden</summary>

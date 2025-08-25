@@ -1,5 +1,5 @@
-// Cache-Version bump: Power-HUD (CSS/JS)
-const CACHE = "shelter-v13-powerhud";
+// Cache-Version bump: Scheduler + HUD-Countdown (HTML/JS geändert)
+const CACHE = "shelter-v14-scheduler";
 const ASSETS = [
   "./",
   "./index.html",

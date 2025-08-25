@@ -1,4 +1,4 @@
-import { COLS, ROWS, START_RES, SAVE_KEY, SAVE_VERSION } from "./config.js";
+import { COLS, ROWS, START_RES, SAVE_KEY, SAVE_VERSION, GRACE_S } from "./config.js";
 
 function emptyGrid(rows=ROWS, cols=COLS){
   return Array.from({length: rows}, ()=>Array.from({length: cols}, ()=>null));
@@ -19,13 +19,17 @@ export function newGame(){
     mode: "build",
     log: ["Willkommen! Baue Produktion auf, dann Verteidigung. Lange drücken = Upgrade."],
     seed: randomSeed(),
-    ver: SAVE_VERSION
+    ver: SAVE_VERSION,
+    // Scheduler-Felder
+    nextAttackAt: null,
+    revealAt: null,
+    graceUntil: (GRACE_S|0) // ab t >= graceUntil kann geplant/angegriffen werden
   };
 }
 
 export function toSave(state){
-  const {grid,res,t,threat,hp,selected,mode,seed,ver}=state;
-  return {grid,res,t,threat,hp,selected,mode,seed,ver};
+  const {grid,res,t,threat,hp,selected,mode,seed,ver,nextAttackAt,revealAt,graceUntil}=state;
+  return {grid,res,t,threat,hp,selected,mode,seed,ver,nextAttackAt,revealAt,graceUntil};
 }
 export function fromSave(obj){
   const s = newGame();
@@ -38,6 +42,9 @@ export function fromSave(obj){
     if(obj.selected) s.selected=obj.selected;
     if(obj.mode) s.mode=obj.mode;
     if(obj.seed!=null) s.seed=obj.seed>>>0;
+    if(obj.nextAttackAt!=null) s.nextAttackAt = obj.nextAttackAt|0;
+    if(obj.revealAt!=null) s.revealAt = obj.revealAt|0;
+    if(obj.graceUntil!=null) s.graceUntil = obj.graceUntil|0;
   }catch{}
   return s;
 }
@@ -64,7 +71,7 @@ export function loadLocal(key=SAVE_KEY){
   }catch{ return null; }
 }
 
-function toB64(s){ try { return btoa(unescape(encodeURIComponent(s))); } catch { return btoa(s); } }
+function toB64(s){ try { return btoa(unescape(encodeURIComponent(s))); } catch { try { return btoa(s); } catch { return s; } } }
 function fromB64(b){ try { return decodeURIComponent(escape(atob(b))); } catch { return atob(b); } }
 
 export function exportSaveString(state){
