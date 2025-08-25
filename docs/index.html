@@ -10,16 +10,32 @@
 </head>
 <body>
   <div id="hud">
-    <div id="toolbar">
-      <button id="saveBtn">Speichern</button>
-      <button id="loadBtn">Laden</button>
-      <button id="clearBtn">Reset</button>
-      <button id="installBtn" hidden>Installieren</button>
+    <div id="resources">
+      <span id="rWood">Holz: 0</span>
+      <span id="rMetal">Metall: 0</span>
+      <span id="rFood">Nahrung: 0</span>
+      <span id="rPower">Strom: 0/0</span>
+      <span id="rDef">Verteid.: 0</span>
+      <span id="rThreat">Bedrohung: 0%</span>
+      <span id="rHP">Integrität: 100%</span>
     </div>
-    <div id="msg">Tiles = 16×16. Tippe/Klicke ins Raster, um zu setzen/entfernen.</div>
+
+    <div id="toolbar">
+      <div id="bar"></div>
+      <div id="actions">
+        <button id="modeBtn" data-mode="build">Modus: Bauen</button>
+        <button id="saveBtn">Speichern</button>
+        <button id="loadBtn">Laden</button>
+        <button id="resetBtn">Neues Spiel</button>
+      </div>
+    </div>
+
+    <div id="msg">Tipp: Lange drücken auf ein Gebäude = Upgrade · „Modus: Abreißen“ entfernt mit 50 % Rückerstattung.</div>
   </div>
 
-  <canvas id="c" width="288" height="192"></canvas> <!-- 18*16 x 12*16 -->
+  <canvas id="c" width="288" height="192"></canvas>
+
+  <div id="log" aria-live="polite"></div>
 
   <script type="module" src="./main.js"></script>
   <script>

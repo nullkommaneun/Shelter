@@ -1,4 +1,5 @@
-const CACHE = "shelter-v2-16px";
+// Cache-Version bumpen, damit neue Assets sicher geladen werden
+const CACHE = "shelter-v3-build";
 const ASSETS = [
   "./",
   "./index.html",
@@ -10,7 +11,6 @@ const ASSETS = [
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
-
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
@@ -18,7 +18,6 @@ self.addEventListener("activate", (e) => {
     )
   );
 });
-
 self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });
