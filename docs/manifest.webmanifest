@@ -1,0 +1,9 @@
+{
+  "name": "Shelter Builder",
+  "short_name": "Shelter",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0e1a27",
+  "theme_color": "#0e1a27",
+  "orientation": "portrait"
+}

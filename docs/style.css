@@ -1,15 +1,21 @@
-:root { --scale: 3; --tile: 18px; }
+:root { --tile: 18px; }
 * { box-sizing: border-box; }
 body {
-  margin: 0;
-  background:#0e1a27; color:#e6f2ff;
+  margin: 0; background:#0e1a27; color:#e6f2ff;
   font: 14px/1.4 system-ui, sans-serif;
-  display:grid; place-items:center; gap:12px; padding:16px;
+  display:grid; place-items:center; gap:10px; padding:14px;
 }
-#hud { margin-bottom: 8px; opacity:.85 }
+#hud { width: 100%; max-width: 560px; display:flex; flex-direction:column; gap:8px; }
+#toolbar { display:flex; gap:8px; flex-wrap:wrap; }
+#toolbar button {
+  background:#17324a; color:#cfe6ff; border:1px solid #335a7e;
+  padding:6px 10px; border-radius:8px;
+}
+#msg { opacity:.9; }
 canvas {
   image-rendering: pixelated;
-  width: calc(var(--scale) * 18 * var(--tile));
-  height: calc(var(--scale) * 12 * var(--tile));
+  width: min(96vw, 560px);                 /* passt sich dem Handy an */
+  aspect-ratio: calc(18 / 12);             /* hält 18x12-Raster */
+  height: auto;
   border:2px solid #2a4a68; border-radius:10px; background:#0b1520;
 }

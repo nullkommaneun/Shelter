@@ -5,15 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <title>Shelter Builder</title>
   <meta name="theme-color" content="#0e1a27">
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <div id="hud">
-    <span id="msg">Tippe/Klicke ins Raster, um ein Feld zu setzen/entfernen.</span>
+    <div id="toolbar">
+      <button id="saveBtn">Speichern</button>
+      <button id="loadBtn">Laden</button>
+      <button id="clearBtn">Reset</button>
+      <button id="installBtn" hidden>Installieren</button>
+    </div>
+    <div id="msg">Tippe/Klicke ins Raster, um ein Feld zu setzen/entfernen.</div>
   </div>
+
   <canvas id="c" width="324" height="216"></canvas>
 
-  <!-- Dein Game-Code -->
   <script type="module" src="./main.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+    }
+  </script>
 </body>
 </html>
