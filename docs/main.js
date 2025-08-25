@@ -1,11 +1,15 @@
-import { TILE, COLS, ROWS, BUILD_DEF as DEF, BUILD_ORDER } from "./config.js";
 import { createEngine } from "./engine.js";
 import { computeStats, tickOnce } from "./systems.js";
 import { newGame, saveLocal, loadLocal, exportSaveString, importSaveString } from "./state.js";
 import { makeRNG } from "./rng.js";
 import { initDebug } from "./debug.js";
+import { getConfig, onConfigChange, openConfigOverlay } from "./settings.js";
 
-// ---------- Canvas & Pixel-Perfect ----------
+// ---------- Laufzeit-Config ----------
+let cfg = getConfig();
+
+// ---------- Canvas & Pixel-Perfect (GRID bleibt fix aus cfg beim Start) ----------
+const TILE = 16, COLS = 18, ROWS = 12; // bewusst fix – cfg kann es später ändern, aber wir halten Grid stabil
 const LOG_W = COLS*TILE, LOG_H = ROWS*TILE;
 const DPR = Math.min(window.devicePixelRatio||1, 3);
 const canvas = document.getElementById("c");
@@ -45,6 +49,7 @@ const loadBtn   = document.getElementById("loadBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const errExportBtn = document.getElementById("errExportBtn");
+const cfgBtn    = document.getElementById("cfgBtn");
 const resetBtn  = document.getElementById("resetBtn");
 const logEl     = document.getElementById("log");
 const msgEl     = document.getElementById("msg");
@@ -52,33 +57,54 @@ const msgEl     = document.getElementById("msg");
 function log(msg){ state.log.push(msg); if(state.log.length>200) state.log.splice(0, state.log.length-200); renderLog(); }
 function renderLog(){ logEl.innerHTML = state.log.slice(-7).map(s=>"• "+s).join("<br>"); logEl.scrollTop = logEl.scrollHeight; }
 
-// Debug-Logger initialisieren (schreibt auch ins In-Game-Log)
+// Debug-Logger initialisieren
 const debug = initDebug({ onLog: (m)=> log(`Fehler: ${m}`) });
 
-// Dropdown füllen
+// ---------- Dropdown & Kosten ----------
+function BUILD_DEF(){ return cfg.BUILD_DEF; }
+function BUILD_ORDER(){ return Array.isArray(cfg.BUILD_ORDER) && cfg.BUILD_ORDER.length ? cfg.BUILD_ORDER : Object.keys(BUILD_DEF()); }
+
 function levelCost(type, lvl){
-  const base = (DEF[type].cost||{}), f = Math.pow(DEF[type].up||1.7, lvl-1), out={};
-  for(const [k,v] of Object.entries(base)) out[k]=Math.ceil(v*f);
+  const def = BUILD_DEF()[type]; if(!def) return {};
+  const base = (def.cost||{}), f = Math.pow(def.up||1.7, Math.max(0,lvl-1)), out={};
+  for(const [k,v] of Object.entries(base)) out[k]=Math.max(1, Math.ceil(v*f));
   return out;
 }
 function fmtCost(c){ return Object.entries(c).map(([k,v])=>`${v} ${k}`).join(", "); }
 function optionLabel(name){ const c=levelCost(name,1); return `${name} (${fmtCost(c)||"0"})`; }
+
 function populateSelect(){
   buildSelect.innerHTML="";
-  for(const name of BUILD_ORDER){
+  for(const name of BUILD_ORDER()){
     const opt=document.createElement("option");
     opt.value=name; opt.textContent=optionLabel(name);
     buildSelect.appendChild(opt);
   }
+  if (!BUILD_DEF()[state.selected]) state.selected = BUILD_ORDER()[0] || "";
   buildSelect.value = state.selected;
 }
 populateSelect();
 
+// Änderungen an der Config anwenden
+onConfigChange((newCfg)=>{
+  const oldTick = cfg.TICK_MS;
+  cfg = newCfg;
+  populateSelect();
+  log(`Konfiguration angewendet: ${new Date().toLocaleTimeString()}.`);
+  if (cfg.TICK_MS !== oldTick) { // Engine mit neuem Tick sauber neu starten
+    engine.stop();
+    engine = createEngine({ onTick: onTick, onRender: onRender, tickMs: cfg.TICK_MS });
+    engine.start();
+  }
+});
+
+// ---------- Buttons ----------
 buildSelect.onchange = ()=> state.selected = buildSelect.value;
 modeBtn.onclick = ()=>{
   state.mode = state.mode==="build" ? "demolish" : "build";
   modeBtn.textContent = state.mode==="build" ? "Modus: Bauen" : "Modus: Abreißen";
 };
+cfgBtn.onclick = ()=> openConfigOverlay();
 
 // ---------- Pointer (Tap / Long-Press) ----------
 let hover=null, pressTimer=null, pressHandled=false;
@@ -121,7 +147,8 @@ function doDemolish({c,r}){
 }
 function tryUpgrade({c,r}){
   const b=state.grid[r][c]; if(!b) return;
-  const d=DEF[b.type]; if(b.level>=d.max){ log(`${b.type} ist bereits Max-Level.`); return; }
+  const d=BUILD_DEF()[b.type]; if(!d) return;
+  if(b.level>=d.max){ log(`${b.type} ist bereits Max-Level.`); return; }
   const cost=levelCost(b.type,b.level+1);
   if(!canAfford(cost)){ log(`Upgrade zu teuer: ${fmtCost(cost)}.`); return; }
   pay(cost); b.level++; log(`${b.type} → Level ${b.level}.`);
@@ -164,9 +191,10 @@ function render(){
   for(let y=0;y<=ROWS;y++){ ctx.beginPath(); ctx.moveTo(0,y*TILE); ctx.lineTo(COLS*TILE,y*TILE); ctx.stroke(); }
 
   // Gebäude
+  const DEF = BUILD_DEF();
   for(let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++){
     const b=state.grid[r][c]; if(!b) continue;
-    const x=c*TILE, y=r*TILE, d=DEF[b.type];
+    const x=c*TILE, y=r*TILE, d=DEF[b.type]; if(!d) continue;
     ctx.fillStyle=d.color; ctx.fillRect(x+1,y+1,TILE-2,TILE-2);
     ctx.strokeStyle="#0b1520"; ctx.strokeRect(x+3,y+3,TILE-6,TILE-6);
     ctx.fillStyle="#ffffff"; for(let i=0;i<b.level;i++) ctx.fillRect(x+3+i*4, y+TILE-5, 3,3);
@@ -177,7 +205,7 @@ function render(){
   if(hover){ const x=hover.c*TILE, y=hover.r*TILE; ctx.strokeStyle="#8fd1ff"; ctx.strokeRect(x+0.5,y+0.5,TILE-1,TILE-1); }
 
   // HUD
-  const s = computeStats(state);
+  const s = computeStats(state, cfg);
   rWood.textContent   = `Holz: ${state.res.wood}`;
   rMetal.textContent  = `Metall: ${state.res.metal}`;
   rFood.textContent   = `Nahrung: ${state.res.food}`;
@@ -187,9 +215,9 @@ function render(){
   rHP.textContent     = `Integrität: ${Math.max(0,Math.round(state.hp))}%`;
 }
 
-const engine = createEngine({
-  onTick: ()=>{ tickOnce(state, rng, log); if(state.hp<=0) engine.stop(); },
-  onRender: ()=>{ render(); }
-});
+function onTick(){ tickOnce(state, rng, log, cfg); if(state.hp<=0) engine.stop(); }
+function onRender(){ render(); }
+
+let engine = createEngine({ onTick, onRender, tickMs: cfg.TICK_MS });
 renderLog();
 engine.start();

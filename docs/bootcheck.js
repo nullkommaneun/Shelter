@@ -1,10 +1,7 @@
 // docs/bootcheck.js
-// Lädt main.js erst, wenn alle Module erreichbar sind.
-// Zeigt bei Fehlern ein Overlay mit Details (kopierbar).
-
 const EXPECT = [
   "./config.js","./engine.js","./systems.js","./state.js","./rng.js",
-  "./debug.js", // neu: Error-Logger muss vorhanden sein
+  "./debug.js","./settings.js", // neu
   "./main.js"
 ];
 
@@ -31,9 +28,7 @@ function showOverlay(title, message, details="") {
       <div>${message}</div>
       ${details ? `<div id="boot-text">${details}</div>` : ""}
       <div class="muted">Tipp: Prüfe, ob alle Dateien in <code>docs/</code> liegen und exakt so heißen.</div>
-      <div id="boot-actions">
-        <button id="boot-copy">Report kopieren</button>
-      </div>
+      <div id="boot-actions"><button id="boot-copy">Report kopieren</button></div>
     </div>
   </div>`;
   document.body.appendChild(el);
@@ -59,7 +54,6 @@ async function checkFiles() {
   return misses;
 }
 
-// Globale Error-Hooks (zeigt Laufzeitfehler als Overlay)
 window.addEventListener("error", (e)=>{
   showOverlay("Laufzeitfehler (window.onerror)", String(e?.error?.message||e?.message||e), String(e?.error?.stack||""));
 });

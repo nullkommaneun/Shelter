@@ -1,5 +1,5 @@
-// Cache-Version bumpen: neuer Logger & Bootcheck-Update
-const CACHE = "shelter-v9-errors";
+// Cache-Version bumpen: neues settings.js & aktualisierte Module
+const CACHE = "shelter-v11-config";
 const ASSETS = [
   "./",
   "./index.html",
@@ -7,6 +7,7 @@ const ASSETS = [
   "./preflight.js",
   "./bootcheck.js",
   "./debug.js",
+  "./settings.js",
   "./main.js",
   "./config.js",
   "./engine.js",
