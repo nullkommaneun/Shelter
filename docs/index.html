@@ -7,6 +7,9 @@
   <meta name="theme-color" content="#0e1a27">
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="stylesheet" href="./style.css">
+
+  <!-- Preflight/Debug: lädt als ERSTES -->
+  <script type="module" src="./preflight.js"></script>
 </head>
 <body>
   <div id="hud">
@@ -41,6 +44,7 @@
 
   <div id="log" aria-live="polite"></div>
 
+  <!-- Game-Code lädt nach Preflight -->
   <script type="module" src="./main.js"></script>
   <script>
     if ("serviceWorker" in navigator) {

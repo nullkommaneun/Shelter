@@ -1,16 +1,18 @@
-// Cache-Version bumpen, damit das Dropdown sicher ausgerollt wird
-const CACHE = "shelter-v4-dropdown";
+// docs/sw.js
+const CACHE = "shelter-v5-preflight";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./main.js",
+  "./preflight.js",
   "./manifest.webmanifest"
 ];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
+
 self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
@@ -18,6 +20,7 @@ self.addEventListener("activate", (e) => {
     )
   );
 });
+
 self.addEventListener("fetch", (e) => {
   e.respondWith(caches.match(e.request).then((r) => r || fetch(e.request)));
 });
