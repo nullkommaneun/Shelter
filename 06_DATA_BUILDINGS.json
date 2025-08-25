@@ -1,0 +1,8 @@
+{
+  "Mine":      { "color": "#7aa8a1", "cost": { "wood": 10 }, "out": { "metal": 1 }, "up": 1.7, "max": 3 },
+  "Farm":      { "color": "#7fbf6d", "cost": { "wood": 15 }, "out": { "food": 1 }, "up": 1.7, "max": 3 },
+  "Forst":     { "color": "#b2925a", "cost": { "food": 5 },  "out": { "wood": 1 }, "up": 1.7, "max": 3 },
+  "Generator": { "color": "#6f86d6", "cost": { "metal": 20 }, "power": { "prod": 1 }, "up": 1.8, "max": 3 },
+  "Barrikade": { "color": "#a26d5e", "cost": { "wood": 20 }, "defense": 1, "up": 1.9, "max": 3 },
+  "Turm":      { "color": "#d07474", "cost": { "metal": 30 }, "defense": 2, "power": { "need": 1 }, "up": 1.9, "max": 3 }
+}
