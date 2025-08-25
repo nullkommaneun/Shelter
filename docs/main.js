@@ -8,8 +8,8 @@ import { getConfig, onConfigChange, openConfigOverlay } from "./settings.js";
 // ---------- Laufzeit-Config ----------
 let cfg = getConfig();
 
-// ---------- Canvas & Pixel-Perfect (GRID bleibt fix aus cfg beim Start) ----------
-const TILE = 16, COLS = 18, ROWS = 12; // bewusst fix – cfg kann es später ändern, aber wir halten Grid stabil
+// ---------- Canvas & Pixel-Perfect ----------
+const TILE = 16, COLS = 18, ROWS = 12; // Grid bleibt vorerst fix
 const LOG_W = COLS*TILE, LOG_H = ROWS*TILE;
 const DPR = Math.min(window.devicePixelRatio||1, 3);
 const canvas = document.getElementById("c");
@@ -57,17 +57,17 @@ const msgEl     = document.getElementById("msg");
 function log(msg){ state.log.push(msg); if(state.log.length>200) state.log.splice(0, state.log.length-200); renderLog(); }
 function renderLog(){ logEl.innerHTML = state.log.slice(-7).map(s=>"• "+s).join("<br>"); logEl.scrollTop = logEl.scrollHeight; }
 
-// Debug-Logger initialisieren
+// Debug-Logger
 const debug = initDebug({ onLog: (m)=> log(`Fehler: ${m}`) });
 
 // ---------- Dropdown & Kosten ----------
 function BUILD_DEF(){ return cfg.BUILD_DEF; }
-function BUILD_ORDER(){ return Array.isArray(cfg.BUILD_ORDER) && cfg.BUILD_ORDER.length ? cfg.BUILD_ORDER : Object.keys(BUILD_DEF()); }
+function BUILD_ORDER(){ return Array.isArray(cfg.BUILD_ORDER)&&cfg.BUILD_ORDER.length ? cfg.BUILD_ORDER : Object.keys(BUILD_DEF()); }
 
 function levelCost(type, lvl){
   const def = BUILD_DEF()[type]; if(!def) return {};
   const base = (def.cost||{}), f = Math.pow(def.up||1.7, Math.max(0,lvl-1)), out={};
-  for(const [k,v] of Object.entries(base)) out[k]=Math.max(1, Math.ceil(v*f));
+  for(const [k,v] of Object.entries(base)) out[k] = Math.max(1, Math.ceil(v*f));
   return out;
 }
 function fmtCost(c){ return Object.entries(c).map(([k,v])=>`${v} ${k}`).join(", "); }
@@ -85,15 +85,15 @@ function populateSelect(){
 }
 populateSelect();
 
-// Änderungen an der Config anwenden
+// Config-Änderungen anwenden
 onConfigChange((newCfg)=>{
   const oldTick = cfg.TICK_MS;
   cfg = newCfg;
   populateSelect();
   log(`Konfiguration angewendet: ${new Date().toLocaleTimeString()}.`);
-  if (cfg.TICK_MS !== oldTick) { // Engine mit neuem Tick sauber neu starten
+  if (cfg.TICK_MS !== oldTick) {
     engine.stop();
-    engine = createEngine({ onTick: onTick, onRender: onRender, tickMs: cfg.TICK_MS });
+    engine = createEngine({ onTick, onRender, tickMs: cfg.TICK_MS });
     engine.start();
   }
 });
@@ -106,7 +106,7 @@ modeBtn.onclick = ()=>{
 };
 cfgBtn.onclick = ()=> openConfigOverlay();
 
-// ---------- Pointer (Tap / Long-Press) ----------
+// ---------- Pointer ----------
 let hover=null, pressTimer=null, pressHandled=false;
 canvas.addEventListener("pointermove", (e)=>{ hover = toCell(e); });
 canvas.addEventListener("pointerleave", ()=> hover=null);
@@ -204,12 +204,14 @@ function render(){
   // Hover
   if(hover){ const x=hover.c*TILE, y=hover.r*TILE; ctx.strokeStyle="#8fd1ff"; ctx.strokeRect(x+0.5,y+0.5,TILE-1,TILE-1); }
 
-  // HUD
+  // HUD (mit Power-Need-Anzeige & Warnung)
   const s = computeStats(state, cfg);
+  const need = s.powerNeed|0, prod = s.powerProd|0, active = s.powerActive|0;
   rWood.textContent   = `Holz: ${state.res.wood}`;
   rMetal.textContent  = `Metall: ${state.res.metal}`;
   rFood.textContent   = `Nahrung: ${state.res.food}`;
-  rPower.textContent  = `Strom: ${s.powerActive}/${s.powerProd}`;
+  rPower.textContent  = `Strom: ${active}/${prod} (Need ${need})`;
+  if (need > prod) rPower.classList.add("warn"); else rPower.classList.remove("warn");
   rDef.textContent    = `Verteid.: ${s.defTotal}`;
   rThreat.textContent = `Bedrohung: ${Math.round(state.threat)}%`;
   rHP.textContent     = `Integrität: ${Math.max(0,Math.round(state.hp))}%`;

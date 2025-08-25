@@ -21,6 +21,12 @@ body {
   background: var(--chip); border:1px solid var(--line);
   padding:4px 8px; border-radius: 999px; white-space: nowrap;
 }
+/* Warnzustand für Strom */
+.chip.warn {
+  background: #2f1e1e;       /* dezent rötlich */
+  border-color: #a36262;
+  color: #ffe6e6;
+}
 
 /* Gruppen/Zeilen */
 .group {
