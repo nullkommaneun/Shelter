@@ -23,37 +23,50 @@
   </noscript>
 
   <div id="hud">
-    <!-- Ressourcenanzeige -->
-    <div id="resources">
-      <span id="rWood">Holz: 0</span>
-      <span id="rMetal">Metall: 0</span>
-      <span id="rFood">Nahrung: 0</span>
-      <span id="rPower">Strom: 0/0</span>
-      <span id="rDef">Verteid.: 0</span>
-      <span id="rThreat">Bedrohung: 0%</span>
-      <span id="rHP">Integrität: 100%</span>
+    <!-- Ressourcen (Chips, horizontal scrollbar bei wenig Platz) -->
+    <div id="resources" class="chips scroll-x">
+      <span id="rWood"  class="chip">Holz: 0</span>
+      <span id="rMetal" class="chip">Metall: 0</span>
+      <span id="rFood"  class="chip">Nahrung: 0</span>
+      <span id="rPower" class="chip">Strom: 0/0</span>
+      <span id="rDef"   class="chip">Verteid.: 0</span>
+      <span id="rThreat" class="chip">Bedrohung: 0%</span>
+      <span id="rHP"     class="chip">Integrität: 100%</span>
     </div>
 
-    <!-- Toolbar: Gebäudeauswahl + Aktionen -->
-    <div id="toolbar">
-      <div id="buildwrap">
-        <label for="buildSelect">Gebäude:</label>
+    <!-- Primärsteuerung -->
+    <div id="toolbar" class="group">
+      <div class="row wrap">
+        <label for="buildSelect" class="lbl">Gebäude:</label>
         <select id="buildSelect" aria-label="Gebäude auswählen"></select>
-      </div>
 
-      <div id="actions">
         <button id="modeBtn" data-mode="build">Modus: Bauen</button>
-        <button id="saveBtn">Speichern</button>
-        <button id="loadBtn">Laden</button>
-        <button id="exportBtn">Export</button>
-        <button id="importBtn">Import</button>
-        <button id="errExportBtn">Fehlerlog exportieren</button>
         <button id="cfgBtn">Balancing</button>
-        <button id="resetBtn">Neues Spiel</button>
       </div>
     </div>
 
-    <div id="msg">
+    <!-- Sekundäraktionen: kompakt in Gruppen -->
+    <div class="row wrap">
+      <details class="group">
+        <summary>Speichern &amp; Laden</summary>
+        <div class="row wrap pad">
+          <button id="saveBtn">Speichern</button>
+          <button id="loadBtn">Laden</button>
+          <button id="exportBtn">Export</button>
+          <button id="importBtn">Import</button>
+        </div>
+      </details>
+
+      <details class="group">
+        <summary>Tools</summary>
+        <div class="row wrap pad">
+          <button id="errExportBtn">Fehlerlog exportieren</button>
+          <button id="resetBtn">Neues Spiel</button>
+        </div>
+      </details>
+    </div>
+
+    <div id="msg" class="muted">
       Tipp: Lange drücken auf ein Gebäude = Upgrade · „Modus: Abreißen“ entfernt mit 50&nbsp;% Rückerstattung.
     </div>
   </div>

@@ -1,31 +1,59 @@
 * { box-sizing: border-box; }
-:root { --bg:#0e1a27; --fg:#e6f2ff; --panel:#0d1f31; --line:#2a4a68; }
+:root {
+  --bg:#0e1a27; --fg:#e6f2ff; --panel:#0d1f31; --line:#2a4a68;
+  --btn:#17324a; --btn-border:#335a7e; --chip:#10263a;
+}
+html, body { height: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--fg);
-  font: 14px/1.4 system-ui, sans-serif;
+  font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   display: grid; place-items: start center; gap: 10px; padding: 12px;
 }
-#hud { width: 100%; max-width: 640px; display: grid; gap: 8px; }
-#resources { display: flex; gap: 8px; flex-wrap: wrap; }
-#resources span { background:#10263a; border:1px solid var(--line); padding:4px 6px; border-radius:8px; }
 
-#toolbar { display: grid; gap: 8px; }
-#buildwrap { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+/* HUD-Blöcke */
+#hud { width: 100%; max-width: 680px; display: grid; gap: 10px; }
+.muted { opacity:.9 }
 
-select, button {
-  background:#17324a; color:#cfe6ff; border:1px solid #335a7e;
-  padding:6px 10px; border-radius:8px;
+/* Chips (Ressourcen) */
+.chips { display:flex; gap:8px; flex-wrap: wrap; }
+.scroll-x { overflow-x:auto; scrollbar-width: thin; }
+.chip {
+  background: var(--chip); border:1px solid var(--line);
+  padding:4px 8px; border-radius: 999px; white-space: nowrap;
+}
+
+/* Gruppen/Zeilen */
+.group {
+  background: var(--panel); border:1px solid var(--line); border-radius: 12px;
+}
+.group > .row:first-child { padding: 8px; }
+.row { display:flex; gap:8px; align-items:center; }
+.wrap { flex-wrap: wrap; }
+.pad { padding: 8px; }
+
+/* Labels */
+.lbl { opacity:.9; min-width: 72px; }
+
+/* Buttons & Select */
+button, select, textarea {
+  background: var(--btn); color:#cfe6ff; border:1px solid var(--btn-border);
+  border-radius: 10px; padding: 6px 10px; font: inherit;
 }
 select { min-width: 230px; appearance: none; -webkit-appearance: none; }
-#actions { display:flex; gap:8px; flex-wrap:wrap; }
-#msg { opacity:.9 }
 
 #log {
-  width: 100%; max-width: 640px; min-height: 70px; max-height: 120px;
+  width: 100%; max-width: 680px; min-height: 70px; max-height: 140px;
   overflow:auto; background: var(--panel); border:1px solid var(--line);
-  padding:6px; border-radius:8px; font-size:13px;
+  padding:8px; border-radius:10px; font-size:13px;
 }
 canvas {
   image-rendering: pixelated;
-  border:2px solid var(--line); border-radius:10px; background:#0b1520;
+  border:2px solid var(--line); border-radius:12px; background:#0b1520;
 }
+
+/* <details> Optik */
+details.group > summary {
+  list-style: none; cursor: pointer; padding: 8px; user-select: none;
+}
+details.group > summary::-webkit-details-marker { display:none; }
+details.group[open] { border-color:#3c6d98; }
