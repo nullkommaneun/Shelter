@@ -3,6 +3,7 @@ import { createEngine } from "./engine.js";
 import { computeStats, tickOnce } from "./systems.js";
 import { newGame, saveLocal, loadLocal, exportSaveString, importSaveString } from "./state.js";
 import { makeRNG } from "./rng.js";
+import { initDebug } from "./debug.js";
 
 // ---------- Canvas & Pixel-Perfect ----------
 const LOG_W = COLS*TILE, LOG_H = ROWS*TILE;
@@ -43,6 +44,7 @@ const saveBtn   = document.getElementById("saveBtn");
 const loadBtn   = document.getElementById("loadBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
+const errExportBtn = document.getElementById("errExportBtn");
 const resetBtn  = document.getElementById("resetBtn");
 const logEl     = document.getElementById("log");
 const msgEl     = document.getElementById("msg");
@@ -50,7 +52,16 @@ const msgEl     = document.getElementById("msg");
 function log(msg){ state.log.push(msg); if(state.log.length>200) state.log.splice(0, state.log.length-200); renderLog(); }
 function renderLog(){ logEl.innerHTML = state.log.slice(-7).map(s=>"• "+s).join("<br>"); logEl.scrollTop = logEl.scrollHeight; }
 
+// Debug-Logger initialisieren (schreibt auch ins In-Game-Log)
+const debug = initDebug({ onLog: (m)=> log(`Fehler: ${m}`) });
+
 // Dropdown füllen
+function levelCost(type, lvl){
+  const base = (DEF[type].cost||{}), f = Math.pow(DEF[type].up||1.7, lvl-1), out={};
+  for(const [k,v] of Object.entries(base)) out[k]=Math.ceil(v*f);
+  return out;
+}
+function fmtCost(c){ return Object.entries(c).map(([k,v])=>`${v} ${k}`).join(", "); }
 function optionLabel(name){ const c=levelCost(name,1); return `${name} (${fmtCost(c)||"0"})`; }
 function populateSelect(){
   buildSelect.innerHTML="";
@@ -93,12 +104,6 @@ function toCell(e){
 }
 
 // ---------- Build/Upgrade/Demolish ----------
-function levelCost(type, lvl){
-  const base = (DEF[type].cost||{}), f = Math.pow(DEF[type].up||1.7, lvl-1), out={};
-  for(const [k,v] of Object.entries(base)) out[k]=Math.ceil(v*f);
-  return out;
-}
-function fmtCost(c){ return Object.entries(c).map(([k,v])=>`${v} ${k}`).join(", "); }
 function canAfford(cost){ return Object.entries(cost).every(([k,v]) => (state.res[k]??0) >= v); }
 function pay(cost){ for(const [k,v] of Object.entries(cost)) state.res[k]=(state.res[k]??0)-v; }
 function refund(cost, ratio=0.5){ for(const [k,v] of Object.entries(cost)) state.res[k]=(state.res[k]??0)+Math.floor(v*ratio); }
@@ -141,6 +146,13 @@ importBtn.onclick = async ()=>{
   const s = importSaveString(input.trim());
   if(!s){ log("Import fehlgeschlagen."); return; }
   state = s; rng = makeRNG(state.seed); populateSelect(); renderLog(); log("Import ok.");
+};
+
+// ---------- Fehlerlog-Export ----------
+errExportBtn.onclick = async ()=>{
+  const txt = debug.exportText();
+  try { await navigator.clipboard.writeText(txt); log("Fehlerlog in Zwischenablage."); }
+  catch { prompt("Fehlerlog kopieren:", txt); }
 };
 
 // ---------- Render & Engine ----------

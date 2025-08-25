@@ -1,10 +1,12 @@
-const CACHE = "shelter-v8-core";
+// Cache-Version bumpen: neuer Logger & Bootcheck-Update
+const CACHE = "shelter-v9-errors";
 const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
   "./preflight.js",
   "./bootcheck.js",
+  "./debug.js",
   "./main.js",
   "./config.js",
   "./engine.js",

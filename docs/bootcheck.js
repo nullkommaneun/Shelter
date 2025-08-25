@@ -2,7 +2,11 @@
 // Lädt main.js erst, wenn alle Module erreichbar sind.
 // Zeigt bei Fehlern ein Overlay mit Details (kopierbar).
 
-const EXPECT = ["./config.js","./engine.js","./systems.js","./state.js","./rng.js","./main.js"];
+const EXPECT = [
+  "./config.js","./engine.js","./systems.js","./state.js","./rng.js",
+  "./debug.js", // neu: Error-Logger muss vorhanden sein
+  "./main.js"
+];
 
 function showOverlay(title, message, details="") {
   const el = document.createElement("div");
@@ -48,12 +52,6 @@ async function checkFiles() {
     try {
       const r = await fetch(p, { cache: "no-store" });
       if (!r.ok) misses.push(`${p} → ${r.status}`);
-      else {
-        const ct = r.headers.get("content-type") || "";
-        if (!/javascript|text\/plain|application\/octet-stream/i.test(ct) && !p.endsWith(".js")) {
-          // main.js etc. werden oft als text/javascript geliefert; passt.
-        }
-      }
     } catch(e) {
       misses.push(`${p} → ${String(e)}`);
     }
@@ -72,14 +70,12 @@ window.addEventListener("unhandledrejection", (e)=>{
 });
 
 (async function boot(){
-  // 1) Dateicheck
   const misses = await checkFiles();
   if (misses.length) {
     showOverlay("Boot fehlgeschlagen – fehlende/unerreichbare Dateien", 
       "Diese Dateien konnten nicht geladen werden:", misses.join("\n"));
     return;
   }
-  // 2) main.js laden
   try {
     await import("./main.js");
   } catch (e) {
