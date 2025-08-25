@@ -1,0 +1,15 @@
+:root { --scale: 3; --tile: 18px; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background:#0e1a27; color:#e6f2ff;
+  font: 14px/1.4 system-ui, sans-serif;
+  display:grid; place-items:center; gap:12px; padding:16px;
+}
+#hud { margin-bottom: 8px; opacity:.85 }
+canvas {
+  image-rendering: pixelated;
+  width: calc(var(--scale) * 18 * var(--tile));
+  height: calc(var(--scale) * 12 * var(--tile));
+  border:2px solid #2a4a68; border-radius:10px; background:#0b1520;
+}
